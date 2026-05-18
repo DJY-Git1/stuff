@@ -1,0 +1,47 @@
+<!-- 
+
+Welcome to GDB Online.
+GDB online is an online compiler and debugger tool for C, C++, Python, Java, PHP, Ruby, Perl,
+C#, OCaml, VB, Swift, Pascal, Fortran, Haskell, Objective-C, Assembly, HTML, CSS, JS, SQLite, Prolog.
+Code, Compile, Run and Debug online from anywhere in world.
+
+-->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <title>Lucy English</title>
+    </head>
+    <body>
+        <h1>Welcome to Lucy English</h1>
+        <h1 id="time"></h1>
+        <p>Please start and finish English class on time.</p>
+        <p>Please says "Good moning" or "Good afternoon".</p>
+        <p>A word paper must with a candy for us.</p>
+        <p>You can share your day on the class start or end.</p>
+        <br>
+        <h5>UK: The Unitid Kingdom of Great Britain and Northern Ireland</h5>
+        <style>
+            body {
+                background:#3498db;
+                text-align:center;
+                font-family:"Micrsoft YaHei" , sans-serif;
+                color:white;
+                text-shadow:2px 2px #aaaaaa;
+            }
+            button {
+                border:none;
+                border-radius:6px;
+                padding:10px 15px;
+            }
+        </style>
+        <script>
+            let time = document.getElementById("time")
+            const f = () => {
+                time.textContent = new Date()
+                setTimeout(f,1000)
+            };f()
+        </script>
+    </body>
+</html>
