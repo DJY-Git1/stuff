@@ -1,0 +1,64 @@
+<!-- 
+
+Welcome to GDB Online.
+GDB online is an online compiler and debugger tool for C, C++, Python, Java, PHP, Ruby, Perl,
+C#, OCaml, VB, Swift, Pascal, Fortran, Haskell, Objective-C, Assembly, HTML, CSS, JS, SQLite, Prolog.
+Code, Compile, Run and Debug online from anywhere in world.
+
+-->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <title></title>
+    </head>
+    <body>
+       <h1 id="think" onclick="my()">勾股定理</h1> 
+       <p id="1st">在勾股定理中，三角形的三条边被称为：勾，股，弦</p>
+       <p id="g"></p>
+       <p id="g1"></p>
+       <p id="x"></p>
+       <style>
+           body {
+               background:#3498db;
+               text-align:center;
+               font-family:"Microsoft YaHei" , sans-serif;
+           }
+       </style>
+       <script>
+           const g = document.getElementById("g")
+           const g1 = document.getElementById("g1")
+           const x = document.getElementById("x")
+           const think = document.getElementById("think")
+           setTimeout(() => {
+               document.getElementById("1st").textContent = "下面是最常见的一组勾股数"
+               g.textContent = "勾：3"
+               g1.textContent = "股：4"
+               x.textContent = "弦：5"
+               setTimeout(() => {
+                   think.textContent = "think: 这三个数有什么关联吗？"
+               },2000)
+           },2000)
+           function my(){
+               setTimeout(() => {
+                   g.textContent = "勾：3x3"
+                   setTimeout(() => {
+                       g.textContent = "勾：9"
+                       g1.textContent = "股：4x4"
+                       setTimeout(() => {
+                           g1.textContent = "股：16"
+                           x.textContent = "弦：5x5"
+                           setTimeout(() => {
+                               x.textContent = "弦：25"
+                               setTimeout(() => {
+                                   document.getElementById("1st").textContent = "唔了！9 + 16 = 25 ！"
+                               },1000)
+                           },1000)
+                       },1000)
+                   },1000)
+               },1000)
+           }
+       </script>
+    </body>
+</html>
