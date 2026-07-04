@@ -21,7 +21,9 @@ Code, Compile, Run and Debug online from anywhere in world.
         const data = [
             {name:"AWM",num:250},
             {name:"Lemon",num:300},
-            {name:"GaoHanTu",num:200}
+            {name:"GaoHanTu",num:200},
+            {name:"Utw",num:800},
+            {name:"Fafat",num:250}
         ]
         const chart = new Chart(ctx, {
             type: "bar",
@@ -35,7 +37,7 @@ Code, Compile, Run and Debug online from anywhere in world.
             }
         })
         setInterval(() => {
-            chart.data.datasets[0].data = [Math.floor(Math.random() * 20 + 240),Math.floor(Math.random() * 20 + 290),Math.floor(Math.random() * 20 + 190)]
+            chart.data.datasets[0].data = [Math.floor(Math.random() * 20 + 240),Math.floor(Math.random() * 20 + 290),Math.floor(Math.random() * 20 + 190),Math.floor(Math.random() * 20 + 790),Math.floor(Math.random() * 20 + 240)]
             chart.update()
         },1000)
     </script>
