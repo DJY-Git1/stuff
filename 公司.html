@@ -1,0 +1,43 @@
+<!-- 
+
+Welcome to GDB Online.
+GDB online is an online compiler and debugger tool for C, C++, Python, Java, PHP, Ruby, Perl,
+C#, OCaml, VB, Swift, Pascal, Fortran, Haskell, Objective-C, Assembly, HTML, CSS, JS, SQLite, Prolog.
+Code, Compile, Run and Debug online from anywhere in world.
+
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>test</title>
+</head>
+<body>
+    <canvas id="myChart"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById("myChart").getContext("2d")
+        const data = [
+            {name:"AWM",num:250},
+            {name:"Lemon",num:300},
+            {name:"GaoHanTu",num:200}
+        ]
+        const chart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: data.map(i => i.name),
+                datasets: [{
+                    label: "公司市值",
+                    data: data.map(i => i.num),
+                    backgroundColor: "#3498db"
+                }]
+            }
+        })
+        setInterval(() => {
+            chart.data.datasets[0].data = [Math.floor(Math.random() * 20 + 240),Math.floor(Math.random() * 20 + 290),Math.floor(Math.random() * 20 + 190)]
+            chart.update()
+        },1000)
+    </script>
+</body>
+</html>
