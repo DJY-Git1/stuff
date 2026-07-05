@@ -22,6 +22,9 @@ Code, Compile, Run and Debug online from anywhere in world.
         <p>You can share your day on the class start or end.</p>
         <br>
         <h5>UK: The United Kingdom of Great Britain and Northern Ireland</h5>
+        <br>
+        <h1>百词斩评分</h1>
+        <canvas id="myChart"></canvas>
         <style>
             body {
                 background:#3498db;
@@ -35,13 +38,43 @@ Code, Compile, Run and Debug online from anywhere in world.
                 border-radius:6px;
                 padding:10px 15px;
             }
+            canvas {
+                background:#fff
+            }
         </style>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js">
         <script>
             let time = document.getElementById("time")
             const f = () => {
                 time.textContent = new Date()
                 setTimeout(f,1000)
             };f()
+            //--------Chart---------
+            const ctx = document.getElementById("myChart").getContext("2d")
+            const data = [{name:"Leo",num:90},
+                          {name:"Elsa",num:95},
+                          {name:"Bosco",num:15},
+                          {name:"Angela",num:90},
+                          {name:"Harrison",num:85}]
+            const chart = new Chart(ctx,{
+                type:"bar",
+                data:{
+                    labels:data.map(i => i.name),
+                    datasets:[{
+                        label:"百词斩综合评价分数",
+                        data:data.map(i => i.num),
+                        backgroundColor:"#3498db"
+                    }]
+                }
+            })
+            setInterval(() => {
+                chart.data.datasets[0].data = [Math.floor(Math.random() * 2 + 89),
+                                               Math.floor(Math.random() * 2 + 94),
+                                               Math.floor(Math.random() * 2 + 14),
+                                               Math.floor(Math.random() * 2 + 89),
+                                               Math.floor(Math.random() * 2 + 84)]
+                chart.update()
+            },1000)
         </script>
     </body>
 </html>
