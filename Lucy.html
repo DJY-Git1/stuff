@@ -84,11 +84,11 @@
         })
         setInterval(() => {
             chart.data.datasets[0].data = [
-                Math.floor(Math.random() * 2 + 89),
-                Math.floor(Math.random() * 2 + 94),
-                Math.floor(Math.random() * 2 + 14),
-                Math.floor(Math.random() * 2 + 89),
-                Math.floor(Math.random() * 2 + 84)
+                Math.round(Math.random() * 2 + 89),
+                Math.round(Math.random() * 2 + 94),
+                Math.round(Math.random() * 2 + 14),
+                Math.round(Math.random() * 2 + 89),
+                Math.round(Math.random() * 2 + 84)
             ]
             chart.update()
         },1000)
