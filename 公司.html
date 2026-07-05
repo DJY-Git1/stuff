@@ -39,6 +39,17 @@ Code, Compile, Run and Debug online from anywhere in world.
                     data: data.map(i => i.num),
                     backgroundColor: "#3498db"
                 }]
+            },
+            options: {
+                scales: {
+                    y: {
+                    min: 0,    // 固定最小值
+                    max: 900,  // 固定最大值
+                    // 关键：不自动调整边界
+                    suggestedMin: undefined,
+                    suggestedMax: undefined
+                    }
+                }
             }
         })
         setInterval(() => {
