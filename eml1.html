@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:#f8f8f8;padding:20px;}
+.box-item{
+    width:100%;
+    background:#ffffff;
+    border-radius:12px;
+    padding:45px 30px;
+    margin-bottom:20px;
+    transition:all 0.2s ease;
+    box-shadow:0 2px 6px rgba(0,0,0,0.05);
+    font-size:24px;
+}
+.box-item:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08);}
+.box-item:active{box-shadow:0 6px 18px rgba(0,0,0,0.12);}
+.formula-wrap{display:flex;align-items:center;gap:8px;font-size:26px;font-style:italic;align-items:center;flex-wrap:wrap;}
+.param-block{
+    width:120px;height:120px;
+    background:#f5f5f5;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    display:inline-flex;align-items:center;justify-content:center;
+    font-style:italic;font-size:32px;transition:all 0.2s;
+    text-align:center;
+}
+.param-block.fill{background:#fff;font-style:normal;}
+.param-block:hover{box-shadow:0 4px 14px rgba(0,0,0,0.1);}
+.bottom-box{position:relative;padding:60px 30px;min-height:180px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;}
+.num-card{
+    width:120px;height:120px;
+    background:#fff;border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    display:flex;align-items:center;justify-content:center;
+    font-size:32px;position:relative;transition:all 0.2s;
+    cursor:grab;user-select:none;-webkit-user-select:none;
+    text-align:center;
+    padding:8px;
+    overflow:hidden;
+}
+.num-card:active{cursor:grabbing;}
+.num-card:hover{box-shadow:0 4px 14px rgba(0,0,0,0.1);}
+.num-card.long-text{font-size:20px;}
+.dot-btn{
+    position:absolute;top:8px;right:8px;
+    width:24px;height:24px;display:flex;gap:3px;
+    align-items:center;justify-content:center;
+    cursor:pointer;opacity:0.4;z-index:2;
+}
+.dot-btn span{width:4px;height:4px;background:#333;border-radius:50%;}
+.dot-btn:hover{opacity:0.8;}
+.menu{
+    position:absolute;top:32px;right:0;
+    background:#fff;border-radius:6px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.12);
+    width:80px;padding:6px 0;display:none;z-index:100;
+}
+.menu-item{padding:6px 12px;cursor:pointer;font-size:14px;}
+.menu-item:hover{background:#f0f0f0;}
+.menu.show{display:block;}
+.drag-clone{
+    width:120px;height:120px;
+    background:#fff;border-radius:10px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.15);
+    display:flex;align-items:center;justify-content:center;
+    font-size:32px;position:fixed;z-index:99999;
+    pointer-events:none;opacity:0.8;
+    text-align:center;
+    padding:8px;
+}
+.drag-clone.long-text{font-size:20px;}
+</style>
+</head>
+<body>
+<div class="box-item">
+    <div class="formula-wrap" id="formulaWrap">
+        <span>eml(</span>
+        <span class="param-block" data-target="x">x</span>
+        <span>,</span>
+        <span class="param-block" data-target="y">y</span>
+        <span>) = </span>
+        <span id="formulaText">eˣ − ln y</span>
+        <span id="resultSlot"></span>
+    </div>
+</div>
+
+<div class="box-item bottom-box" id="bottomContainer">
+    <div class="num-card" data-val="1">
+        1
+        <div class="dot-btn" onclick="toggleMenu(event)">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="menu">
+            <div class="menu-item" onclick="delCard(event)">删除</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleMenu(e){
+    e.stopPropagation();
+    document.querySelectorAll('.menu').forEach(m=>m.classList.remove('show'));
+    e.target.closest('.dot-btn').nextElementSibling.classList.toggle('show');
+}
+function delCard(e){
+    e.stopPropagation();
+    const card = e.target.closest('.num-card');
+    if(card) card.remove();
+}
+document.addEventListener('click',e=>{
+    if(!e.target.closest('.dot-btn') && !e.target.closest('.menu')){
+        document.querySelectorAll('.menu').forEach(m=>m.classList.remove('show'));
+    }
+});
+
+let valX = null;
+let valY = null;
+const targetBlocks = document.querySelectorAll('.param-block');
+const resultSlot = document.getElementById('resultSlot');
+const bottomContainer = document.getElementById('bottomContainer');
+let dragClone = null;
+let offsetX = 0, offsetY = 0;
+let isDragging = false;
+let dragSourceCard = null;
+
+const E = Math.E;
+const PI = Math.PI;
+
+// 表达式解析 兼容e π ∞
+function parseMathExpr(str){
+    let s = str.trim();
+    s = s.replace(/e/g, E).replace(/π/g, PI).replace(/−/g, '-');
+    s = s.replace(/-∞/g, '-Infinity').replace(/∞/g, 'Infinity');
+    try{
+        return Function('"use strict";return (' + s + ')')();
+    }catch(err){
+        return NaN;
+    }
+}
+
+// 分项1：化简ln(y) 优先代数符号化简
+function simplifyLog(yText){
+    const val = parseMathExpr(yText);
+    if(val <= 0) return {sym:"−∞", num:-Infinity};
+    // 特殊对数恒等式
+    if(Math.abs(val - 1) < 1e-10) return {sym:"0", num:0};
+    if(Math.abs(val - E) < 1e-10) return {sym:"1", num:1};
+    if(Math.abs(val - E*E) < 1e-10) return {sym:"2", num:2};
+    // 无化简，返回原式数值
+    return {sym:`ln${yText}`, num:Math.log(val)};
+}
+
+// 分项2：化简e^x 优先指数符号化简
+function simplifyExp(xText){
+    const val = parseMathExpr(xText);
+    if(val === -Infinity) return {sym:"0", num:0};
+    // 识别多层e指数
+    if(Math.abs(val - 1) < 1e-10) return {sym:"e", num:E};
+    if(Math.abs(val - E) < 1e-10) return {sym:"e^e", num:Math.exp(E)};
+    if(Math.abs(val - Math.exp(E)) < 1e-10) return {sym:"e^e^e", num:Math.exp(Math.exp(E))};
+    // 普通数值指数
+    return {sym:`e^${xText}`, num:Math.exp(val)};
+}
+
+// 判断是否纯有理数（不含e π ∞）
+function isPureRational(num, eps=1e-10){
+    if(Math.abs(num - E) < eps) return false;
+    if(Math.abs(num - PI) < eps) return false;
+    if(num === Infinity || num === -Infinity) return false;
+    return true;
+}
+
+// 分数化简 仅纯有理数使用
+function gcd(a,b){
+    a=Math.abs(a);b=Math.abs(b);
+    while(b){[a,b]=[b,a%b]}
+    return a;
+}
+function decimalToFraction(num, eps=1e-10){
+    if(Math.abs(num-Math.round(num))<eps) return {n:Math.round(num),d:1};
+    let n=1,d=1,a=num;
+    for(let i=0;i<20;i++){
+        a=1/(a-Math.floor(a));
+        const t=n;n=d;d=d*Math.floor(a)+t;
+        if(Math.abs(n/d-num)<eps) break;
+    }
+    const g=gcd(n,d);
+    return {n:n/g,d:d/g};
+}
+
+// 匹配标准符号常量输出
+function matchSymNum(val, eps=1e-10){
+    if(val === Infinity) return "∞";
+    if(val === -Infinity) return "−∞";
+    if(Math.abs(val - E) < eps) return "e";
+    if(Math.abs(val - PI) < eps) return "π";
+    if(Math.abs(val - (E-1)) < eps) return "e−1";
+    if(Math.abs(val - (E+1)) < eps) return "e+1";
+    if(Math.abs(val - (PI/2)) < eps) return "π/2";
+    if(Math.abs(val - (E*E)) < eps) return "e^e";
+    if(Math.abs(val - Math.exp(E)) < eps) return "e^e^e";
+    return null;
+}
+
+function createClone(text){
+    const clone = document.createElement('div');
+    clone.className = 'drag-clone';
+    clone.innerText = text;
+    if(text.length>3) clone.classList.add('long-text');
+    document.body.appendChild(clone);
+    return clone;
+}
+function isRectOverlap(r1, r2){
+    return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+}
+
+// 核心分步化简计算
+function calcEml(xText, yText){
+    // 先分别化简两项
+    const exp = simplifyExp(xText);
+    const log = simplifyLog(yText);
+
+    // 出现负无穷直接返回
+    if(log.sym === "−∞") return "−∞";
+
+    // 代数合并：exp − log
+    // 场景1：对数化简为0，直接只保留指数
+    if(log.sym === "0"){
+        return exp.sym;
+    }
+    // 场景2：指数化简为0，输出 0 - log数值
+    if(exp.sym === "0"){
+        const total = 0 - log.num;
+        const sym = matchSymNum(total);
+        if(sym) return sym;
+        if(isPureRational(total)){
+            const frac = decimalToFraction(total);
+            return frac.d===1 ? String(frac.n) : `${frac.n}/${frac.d}`;
+        }
+        return String(total.toFixed(6)).replace(/\.000000$/,'');
+    }
+
+    // 两项都化简为常数（数字/符号），合并判断
+    const totalNum = exp.num - log.num;
+    const totalSym = matchSymNum(totalNum);
+    if(totalSym) return totalSym;
+
+    // 无化简空间，输出最简表达式
+    return `${exp.sym} − ${log.sym}`;
+}
+
+function resetFormula(){
+    valX = null;
+    valY = null;
+    document.querySelectorAll('.param-block').forEach(block=>{
+        block.textContent = block.dataset.target;
+        block.classList.remove('fill');
+    });
+    resultSlot.innerHTML = '';
+}
+
+function buildResultCard(valText){
+    const card = document.createElement('div');
+    card.className = 'num-card';
+    if(valText.length>3) card.classList.add('long-text');
+    card.dataset.val = valText;
+    card.innerHTML = `${valText}
+        <div class="dot-btn" onclick="toggleMenu(event)">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="menu">
+            <div class="menu-item" onclick="delCard(event)">删除</div>
+        </div>`;
+    return card;
+}
+
+function refreshResult(){
+    if(valX === null || valY === null){
+        resultSlot.innerHTML = '';
+        return;
+    }
+    const output = calcEml(valX, valY);
+    const resCard = buildResultCard(output);
+    resultSlot.innerHTML = '';
+    resultSlot.appendChild(resCard);
+}
+
+function endDrag(){
+    if(!dragClone || !dragSourceCard) return;
+    const dragRect = dragClone.getBoundingClientRect();
+    const dragValue = dragSourceCard.dataset.val;
+    let hitParam = null;
+
+    targetBlocks.forEach(block=>{
+        const bRect = block.getBoundingClientRect();
+        if(isRectOverlap(dragRect, bRect)){
+            hitParam = block;
+            block.innerText = dragValue;
+            block.classList.add('fill');
+            const key = block.dataset.target;
+            if(key === 'x') valX = dragValue;
+            if(key === 'y') valY = dragValue;
+            refreshResult();
+        }
+    });
+
+    const bottomRect = bottomContainer.getBoundingClientRect();
+    if(isRectOverlap(dragRect, bottomRect) && !hitParam){
+        if(dragSourceCard.parentElement === resultSlot){
+            const newCard = buildResultCard(dragValue);
+            bottomContainer.appendChild(newCard);
+            resetFormula();
+        }
+    }
+
+    dragClone.remove();
+    dragClone = null;
+    dragSourceCard = null;
+    isDragging = false;
+}
+
+// 鼠标拖拽
+document.addEventListener('mousedown', e=>{
+    const card = e.target.closest('.num-card');
+    if(!card) return;
+    if(e.target.closest('.dot-btn') || e.target.closest('.menu')) return;
+    e.preventDefault();
+    isDragging = true;
+    dragSourceCard = card;
+    const text = card.innerText.trim();
+    dragClone = createClone(text);
+    const rect = card.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    dragClone.style.left = (e.clientX - offsetX) + 'px';
+    dragClone.style.top = (e.clientY - offsetY) + 'px';
+});
+document.addEventListener('mousemove',e=>{
+    if(!isDragging || !dragClone) return;
+    dragClone.style.left = (e.clientX - offsetX) + 'px';
+    dragClone.style.top = (e.clientY - offsetY) + 'px';
+});
+document.addEventListener('mouseup', endDrag);
+
+// 触屏拖拽
+document.addEventListener('touchstart',e=>{
+    const touch = e.touches[0];
+    const card = document.elementFromPoint(touch.clientX, touch.clientY).closest('.num-card');
+    if(!card) return;
+    if(e.target.closest('.dot-btn') || e.target.closest('.menu')) return;
+    e.preventDefault();
+    isDragging = true;
+    dragSourceCard = card;
+    const text = card.innerText.trim();
+    dragClone = createClone(text);
+    const rect = card.getBoundingClientRect();
+    offsetX = touch.clientX - rect.left;
+    offsetY = touch.clientY - rect.top;
+    dragClone.style.left = (touch.clientX - offsetX) + 'px';
+    dragClone.style.top = (touch.clientY - offsetY) + 'px';
+},{passive:false});
+document.addEventListener('touchmove',e=>{
+    if(!isDragging || !dragClone) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    dragClone.style.left = (touch.clientX - offsetX) + 'px';
+    dragClone.style.top = (touch.clientY - offsetY) + 'px';
+},{passive:false});
+document.addEventListener('touchend', endDrag);
+document.addEventListener('touchcancel', endDrag);
+</script>
+</body>
+</html>
