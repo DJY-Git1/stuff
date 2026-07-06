@@ -135,6 +135,7 @@ function parseMathExpr(str){
     let s = str.trim();
     s = s.replace(/e/g, E).replace(/π/g, PI).replace(/−/g, '-');
     s = s.replace(/-∞/g, '-Infinity').replace(/∞/g, 'Infinity');
+    s = s.replace(/\^/g, '**');
     try{
         return Function('"use strict";return (' + s + ')')();
     }catch(err){
