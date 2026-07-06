@@ -1,0 +1,365 @@
+<!-- 
+
+Welcome to GDB Online.
+GDB online is an online compiler and debugger tool for C, C++, Python, Java, PHP, Ruby, Perl,
+C#, OCaml, VB, Swift, Pascal, Fortran, Haskell, Objective-C, Assembly, HTML, CSS, JS, SQLite, Prolog.
+Code, Compile, Run and Debug online from anywhere in world.
+
+-->
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:#f8f8f8;padding:20px;}
+.box-item{
+    width:100%;
+    background:#ffffff;
+    border-radius:12px;
+    padding:45px 30px;
+    margin-bottom:20px;
+    transition:all 0.2s ease;
+    box-shadow:0 2px 6px rgba(0,0,0,0.05);
+    font-size:24px;
+}
+.box-item:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08);}
+.box-item:active{box-shadow:0 6px 18px rgba(0,0,0,0.12);}
+.formula-wrap{display:flex;align-items:center;gap:8px;font-size:26px;font-style:italic;align-items:center;flex-wrap:wrap;}
+.param-block{
+    width:120px;height:120px;
+    background:#f5f5f5;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    display:inline-flex;align-items:center;justify-content:center;
+    font-style:italic;font-size:32px;transition:all 0.2s;
+    text-align:center;
+}
+.param-block.fill{background:#fff;font-style:normal;}
+.param-block:hover{box-shadow:0 4px 14px rgba(0,0,0,0.1);}
+.bottom-box{position:relative;padding:60px 30px;min-height:180px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;}
+.num-card{
+    width:120px;height:120px;
+    background:#fff;border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    display:flex;align-items:center;justify-content:center;
+    font-size:32px;position:relative;transition:all 0.2s;
+    cursor:grab;user-select:none;-webkit-user-select:none;
+    text-align:center;
+    padding:8px;
+    overflow:hidden;
+}
+.num-card:active{cursor:grabbing;}
+.num-card:hover{box-shadow:0 4px 14px rgba(0,0,0,0.1);}
+.num-card.long-text{font-size:20px;}
+.dot-btn{
+    position:absolute;top:8px;right:8px;
+    width:24px;height:24px;display:flex;gap:3px;
+    align-items:center;justify-content:center;
+    cursor:pointer;opacity:0.4;z-index:2;
+}
+.dot-btn span{width:4px;height:4px;background:#333;border-radius:50%;}
+.dot-btn:hover{opacity:0.8;}
+.menu{
+    position:absolute;top:32px;right:0;
+    background:#fff;border-radius:6px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.12);
+    width:80px;padding:6px 0;display:none;z-index:100;
+}
+.menu-item{padding:6px 12px;cursor:pointer;font-size:14px;}
+.menu-item:hover{background:#f0f0f0;}
+.menu.show{display:block;}
+.drag-clone{
+    width:120px;height:120px;
+    background:#fff;border-radius:10px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.15);
+    display:flex;align-items:center;justify-content:center;
+    font-size:32px;position:fixed;z-index:99999;
+    pointer-events:none;opacity:0.8;
+    text-align:center;
+    padding:8px;
+}
+.drag-clone.long-text{font-size:20px;}
+</style>
+</head>
+<body>
+<div class="box-item">
+    <div class="formula-wrap" id="formulaWrap">
+        <span>eml(</span>
+        <span class="param-block" data-target="x">x</span>
+        <span>,</span>
+        <span class="param-block" data-target="y">y</span>
+        <span>) = </span>
+        <span id="formulaText">eˣ − ln y</span>
+        <span id="resultSlot"></span>
+    </div>
+</div>
+
+<div class="box-item bottom-box" id="bottomContainer">
+    <div class="num-card" data-val="1">
+        1
+        <div class="dot-btn" onclick="toggleMenu(event)">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="menu">
+            <div class="menu-item" onclick="delCard(event)">删除</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleMenu(e){
+    e.stopPropagation();
+    document.querySelectorAll('.menu').forEach(m=>m.classList.remove('show'));
+    e.target.closest('.dot-btn').nextElementSibling.classList.toggle('show');
+}
+function delCard(e){
+    e.stopPropagation();
+    const card = e.target.closest('.num-card');
+    if(card) card.remove();
+}
+document.addEventListener('click',e=>{
+    if(!e.target.closest('.dot-btn') && !e.target.closest('.menu')){
+        document.querySelectorAll('.menu').forEach(m=>m.classList.remove('show'));
+    }
+});
+
+let valX = null;
+let valY = null;
+const targetBlocks = document.querySelectorAll('.param-block');
+const resultSlot = document.getElementById('resultSlot');
+const bottomContainer = document.getElementById('bottomContainer');
+let dragClone = null;
+let offsetX = 0, offsetY = 0;
+let isDragging = false;
+let dragSourceCard = null;
+
+const E = Math.E;
+const PI = Math.PI;
+
+// 解析表达式，兼容∞符号
+function parseMathExpr(str){
+    let s = str.trim();
+    s = s.replace(/e/g, E).replace(/π/g, PI).replace(/−/g, '-');
+    s = s.replace(/-∞/g, '-Infinity').replace(/∞/g, 'Infinity');
+    try{
+        return Function('"use strict";return (' + s + ')')();
+    }catch(err){
+        return NaN;
+    }
+}
+
+// 最大公约数 分数化简
+function gcd(a,b){
+    a=Math.abs(a);b=Math.abs(b);
+    while(b){[a,b]=[b,a%b]}
+    return a;
+}
+function decimalToFraction(num, eps=1e-10){
+    if(Math.abs(num-Math.round(num))<eps) return {n:Math.round(num),d:1};
+    let n=1,d=1,a=num;
+    for(let i=0;i<20;i++){
+        a=1/(a-Math.floor(a));
+        const t=n;n=d;d=d*Math.floor(a)+t;
+        if(Math.abs(n/d-num)<eps) break;
+    }
+    const g=gcd(n,d);
+    return {n:n/g,d:d/g};
+}
+
+// 匹配标准符号表达式
+function matchConst(val, eps=1e-10){
+    if(Math.abs(val - (E-1))<eps) return "e−1";
+    if(Math.abs(val - (E+1))<eps) return "e+1";
+    if(Math.abs(val - (PI/2))<eps) return "π/2";
+    if(Math.abs(val - (PI+E))<eps) return "π+e";
+    if(Math.abs(val - E)<eps) return "e";
+    if(Math.abs(val - PI)<eps) return "π";
+    if(val === Infinity) return "∞";
+    if(val === -Infinity) return "−∞";
+    return null;
+}
+
+function createClone(text){
+    const clone = document.createElement('div');
+    clone.className = 'drag-clone';
+    clone.innerText = text;
+    if(text.length>3) clone.classList.add('long-text');
+    document.body.appendChild(clone);
+    return clone;
+}
+function isRectOverlap(r1, r2){
+    return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+}
+
+// 核心计算 eml(x,y) = e^x − ln y
+function calcEml(xText, yText){
+    const xVal = parseMathExpr(xText);
+    const yVal = parseMathExpr(yText);
+
+    // e^(ln a) = a 化简分支
+    if(xText.startsWith('ln(')){
+        const inner = xText.replace(/^ln\(/,'').replace(/\)$/,'');
+        const n = parseMathExpr(inner);
+        if(!isNaN(n) && !isNaN(yVal)){
+            // ln(y)定义域判断
+            if(yVal <= 0) return "−∞";
+            const sub = n - Math.log(yVal);
+            const sym = matchConst(sub);
+            if(sym) return sym;
+            const frac = decimalToFraction(sub);
+            return frac.d===1 ? String(frac.n) : `${frac.n}/${frac.d}`;
+        }
+    }
+
+    // 输入表达式解析失败
+    if(isNaN(xVal) || isNaN(yVal)) return `e^${xText} − ln(${yText})`;
+
+    // 新增规则1：y ≤ 0，ln(y)无实数解，整体输出负无穷 −∞
+    if(yVal <= 0){
+        return "−∞";
+    }
+
+    // 新增规则2：指数x为负无穷，e^(-∞)=0，直接0 − ln(y)
+    let expPart;
+    if(xVal === -Infinity){
+        expPart = 0;
+    }else{
+        expPart = Math.exp(xVal);
+    }
+
+    const logPart = Math.log(yVal);
+    const res = expPart - logPart;
+
+    // 优先返回符号形式
+    const symStr = matchConst(res);
+    if(symStr) return symStr;
+    // 有理数转最简分数
+    const frac = decimalToFraction(res);
+    return frac.d === 1 ? String(frac.n) : `${frac.n}/${frac.d}`;
+}
+
+function resetFormula(){
+    valX = null;
+    valY = null;
+    document.querySelectorAll('.param-block').forEach(block=>{
+        block.textContent = block.dataset.target;
+        block.classList.remove('fill');
+    });
+    resultSlot.innerHTML = '';
+}
+
+function buildResultCard(valText){
+    const card = document.createElement('div');
+    card.className = 'num-card';
+    if(valText.length>3) card.classList.add('long-text');
+    card.dataset.val = valText;
+    card.innerHTML = `${valText}
+        <div class="dot-btn" onclick="toggleMenu(event)">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="menu">
+            <div class="menu-item" onclick="delCard(event)">删除</div>
+        </div>`;
+    return card;
+}
+
+function refreshResult(){
+    if(valX === null || valY === null){
+        resultSlot.innerHTML = '';
+        return;
+    }
+    const output = calcEml(valX, valY);
+    const resCard = buildResultCard(output);
+    resultSlot.innerHTML = '';
+    resultSlot.appendChild(resCard);
+}
+
+function endDrag(){
+    if(!dragClone || !dragSourceCard) return;
+    const dragRect = dragClone.getBoundingClientRect();
+    const dragValue = dragSourceCard.dataset.val;
+    let hitParam = null;
+
+    targetBlocks.forEach(block=>{
+        const bRect = block.getBoundingClientRect();
+        if(isRectOverlap(dragRect, bRect)){
+            hitParam = block;
+            block.innerText = dragValue;
+            block.classList.add('fill');
+            const key = block.dataset.target;
+            if(key === 'x') valX = dragValue;
+            if(key === 'y') valY = dragValue;
+            refreshResult();
+        }
+    });
+
+    const bottomRect = bottomContainer.getBoundingClientRect();
+    if(isRectOverlap(dragRect, bottomRect) && !hitParam){
+        if(dragSourceCard.parentElement === resultSlot){
+            const newCard = buildResultCard(dragValue);
+            bottomContainer.appendChild(newCard);
+            resetFormula();
+        }
+    }
+
+    dragClone.remove();
+    dragClone = null;
+    dragSourceCard = null;
+    isDragging = false;
+}
+
+// 鼠标拖拽
+document.addEventListener('mousedown', e=>{
+    const card = e.target.closest('.num-card');
+    if(!card) return;
+    if(e.target.closest('.dot-btn') || e.target.closest('.menu')) return;
+    e.preventDefault();
+    isDragging = true;
+    dragSourceCard = card;
+    const text = card.innerText.trim();
+    dragClone = createClone(text);
+    const rect = card.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    dragClone.style.left = (e.clientX - offsetX) + 'px';
+    dragClone.style.top = (e.clientY - offsetY) + 'px';
+});
+document.addEventListener('mousemove',e=>{
+    if(!isDragging || !dragClone) return;
+    dragClone.style.left = (e.clientX - offsetX) + 'px';
+    dragClone.style.top = (e.clientY - offsetY) + 'px';
+});
+document.addEventListener('mouseup', endDrag);
+
+// 触屏拖拽
+document.addEventListener('touchstart',e=>{
+    const touch = e.touches[0];
+    const card = document.elementFromPoint(touch.clientX, touch.clientY).closest('.num-card');
+    if(!card) return;
+    if(e.target.closest('.dot-btn') || e.target.closest('.menu')) return;
+    e.preventDefault();
+    isDragging = true;
+    dragSourceCard = card;
+    const text = card.innerText.trim();
+    dragClone = createClone(text);
+    const rect = card.getBoundingClientRect();
+    offsetX = touch.clientX - rect.left;
+    offsetY = touch.clientY - rect.top;
+    dragClone.style.left = (touch.clientX - offsetX) + 'px';
+    dragClone.style.top = (touch.clientY - offsetY) + 'px';
+},{passive:false});
+document.addEventListener('touchmove',e=>{
+    if(!isDragging || !dragClone) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    dragClone.style.left = (touch.clientX - offsetX) + 'px';
+    dragClone.style.top = (touch.clientY - offsetY) + 'px';
+},{passive:false});
+document.addEventListener('touchend', endDrag);
+document.addEventListener('touchcancel', endDrag);
+</script>
+</body>
+</html>
