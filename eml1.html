@@ -145,6 +145,18 @@ function parseMathExpr(str){
 
 // 分项1：化简ln(y) 优先代数符号化简
 function simplifyLog(yText){
+    // 新增：化简 ln(a^b) = b·lna
+    if(/^ln\(.*\^.*\)$/.test(yText)){
+        const inner = yText.slice(4,-1);
+        const parts = inner.split('^');
+        const base = parts[0].trim();
+        const exp = parts[1].trim();
+        const bVal = parseMathExpr(exp);
+        const baseVal = parseMathExpr(base);
+        const realNum = bVal * Math.log(baseVal);
+        return {sym: `${exp}·ln${base}`, num: realNum};
+    }
+
     const val = parseMathExpr(yText);
     if(val <= 0) return {sym:"−∞", num:-Infinity};
     // 特殊对数恒等式
@@ -153,18 +165,6 @@ function simplifyLog(yText){
     if(Math.abs(val - E*E) < 1e-10) return {sym:"2", num:2};
     // 无化简，返回原式数值
     return {sym:`ln${yText}`, num:Math.log(val)};
-}
-
-// 分项2：化简e^x 优先指数符号化简
-function simplifyExp(xText){
-    const val = parseMathExpr(xText);
-    if(val === -Infinity) return {sym:"0", num:0};
-    // 识别多层e指数
-    if(Math.abs(val - 1) < 1e-10) return {sym:"e", num:E};
-    if(Math.abs(val - E) < 1e-10) return {sym:"e^e", num:Math.exp(E)};
-    if(Math.abs(val - Math.exp(E)) < 1e-10) return {sym:"e^e^e", num:Math.exp(Math.exp(E))};
-    // 普通数值指数
-    return {sym:`e^${xText}`, num:Math.exp(val)};
 }
 
 // 判断是否纯有理数（不含e π ∞）
