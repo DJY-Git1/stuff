@@ -14,9 +14,12 @@ Code, Compile, Run and Debug online from anywhere in world.
     <title>test</title>
 </head>
 <body>
+     <h1>AWM股票0.0.1 Alpha</h1>
     <canvas id="myChart"></canvas>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        alert("更新日志：\n
+              0.0.1 Alpha:也是花了亿点点时间把我之前脑子抽风把随机量嵌数组里的东西整回来了，up要死了")
         const ctx = document.getElementById("myChart").getContext("2d")
         const data = [
             {name:"AWM",num:250},
@@ -53,16 +56,26 @@ Code, Compile, Run and Debug online from anywhere in world.
             }
         })
         setInterval(() => {
-            chart.data.datasets[0].data = [Math.floor(Math.random() * 20 + 240),
-                                           Math.floor(Math.random() * 20 + 290),
-                                           Math.floor(Math.random() * 20 + 190),
-                                           Math.floor(Math.random() * 20 + 790),
-                                           Math.floor(Math.random() * 20 + 240),
-                                           Math.floor(Math.random() * 20 + 290),
-                                           Math.floor(Math.random() * 20 + 240),
-                                           Math.floor(Math.random() * 20 + 240),
-                                           Math.floor(Math.random() * 20 + 340),
-                                           Math.floor(Math.random() * 20 + 290)]
+          let AWM = Math.floor(Math.random() * 20 + 240)
+          let Lemon = Math.floor(Math.random() * 20 + 290)
+          let GaoHanTu = Math.floor(Math.random() * 20 + 190) 
+          let Utw = Math.floor(Math.random() * 20 + 790)
+          let Fafat = Math.floor(Math.random() * 20 + 240)
+          let COHL = Math.floor(Math.random() * 20 + 290)
+          let UWSF = Math.floor(Math.random() * 20 + 240)
+          let Vial = Math.floor(Math.random() * 20 + 240)
+          let SOTL = Math.floor(Math.random() * 20 + 340)
+          let Oganesson = Math.floor(Math.random() * 20 + 290)
+            chart.data.datasets[0].data = [AWM,
+                                           Lemon,
+                                           GaoHanTu,
+                                           Utw,
+                                           Fafat,
+                                           COHL,
+                                           UWSF,
+                                           Vial,
+                                           SOTL,
+                                           Oganesson]
         chart.update()
         },1000)
     </script>
