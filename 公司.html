@@ -15,11 +15,17 @@ Code, Compile, Run and Debug online from anywhere in world.
 </head>
 <body>
      <h1>AWM股票0.0.1 Alpha</h1>
+    <style>
+        * {
+            font-family:"Microsoft YaHei" , sans-serif;
+        }
+        h1{
+            text-align:center;
+        }
+    </style>
     <canvas id="myChart"></canvas>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        alert("更新日志：\n
-              0.0.1 Alpha:也是花了亿点点时间把我之前脑子抽风把随机量嵌数组里的东西整回来了，up要死了")
         const ctx = document.getElementById("myChart").getContext("2d")
         const data = [
             {name:"AWM",num:250},
