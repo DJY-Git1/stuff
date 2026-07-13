@@ -61,6 +61,16 @@ Code, Compile, Run and Debug online from anywhere in world.
                 }
             }
         })
+        let AWM1 = 250
+        let Lemon1 = 300
+        let GaoHanTu1 = 200
+        let Utw1 = 800
+        let Fafat1 = 250
+        let COHL1 = 300
+        let UWSF1 = 250
+        let Vial1 = 250
+        let SOTL = 350
+        let Oganesson = 300
         setInterval(() => {
           let AWM = Math.floor(Math.random() * 20 + 240)
           let Lemon = Math.floor(Math.random() * 20 + 290)
@@ -82,6 +92,26 @@ Code, Compile, Run and Debug online from anywhere in world.
                                            Vial,
                                            SOTL,
                                            Oganesson]
+            chart.data.labels = ["AWM(" + Math.round((AWM-AWM1)*10000/AWM1)/100 + "%)",
+                                "Lemon(" + Math.round((Lemon-Lemon1)*10000/Lemon1)/100 + "%)",
+                                "GaoHanTu(" + Math.round((GaoHanTu-GaoHanTu1)*10000/GaoHanTu1)/100 + "%)",
+                                "Utw(" + Math.round((Utw-Utw1)*10000/Utw1)/100 + "%)",
+                                "Fafat(" + Math.round((Fafat-Fafat1)*10000/Fafat1)/100 + "%)",
+                                "COHL(" + Math.round((COHL-COHL1)*10000/COHL1)/100 + "%)",
+                                "UWSF(" + Math.round((UWSF-UWSF1)*10000/UWSF1)/100 + "%)",
+                                "Vial(" + Math.round((Vial-Vial1)*10000/Vial1)/100 + "%)",
+                                "SOTL(" + Math.round((SOTL-SOTL1)*10000/SOTL1)/100 + "%)",
+                                "Oganesson(" + Math.round((Oganesson-Ogansson1)*10000/Ogansson1)/100 + "%)",]
+                                AWM1 = AWM
+                                Lemon1 = Lemon
+                                GaoHanTu1 = GaoHanTu
+                                Utw1 = Utw
+                                Fafat1 = Fafat
+                                COHL1 = COHL
+                                UWSF1 = UWSF
+                                Vial1 = Vial
+                                SOTL1 = SOTL
+                                Oganesson1 = Oganesson
         chart.update()
         },1000)
     </script>
