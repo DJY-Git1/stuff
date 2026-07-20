@@ -37,7 +37,8 @@ Code, Compile, Run and Debug online from anywhere in world.
             {name:"UWSF",num:250},
             {name:"Vial",num:250},
             {name:"SOTL",num:350},
-            {name:"Oganesson",num:300}
+            {name:"Oganesson",num:300},
+            {name:"Nx",num:250}
         ]
         const chart = new Chart(ctx, {
             type: "bar",
@@ -71,11 +72,12 @@ Code, Compile, Run and Debug online from anywhere in world.
         let Vial1 = 250
         let SOTL1 = 350
         let Oganesson1 = 300
+        let Nx1 = 250
 
         setInterval(() => {
             let AWM = Math.floor(Math.random() * 20 + 240)
             let Lemon = Math.floor(Math.random() * 20 + 290)
-            let GaoHanTu = Math.floor(Math.random() * 20 + 190)
+            let GaoHanTu = Math.floor(Math.random() * 10 + 195)
             let Utw = Math.floor(Math.random() * 20 + 790)
             let Fafat = Math.floor(Math.random() * 20 + 240)
             let COHL = Math.floor(Math.random() * 20 + 290)
@@ -83,6 +85,7 @@ Code, Compile, Run and Debug online from anywhere in world.
             let Vial = Math.floor(Math.random() * 20 + 240)
             let SOTL = Math.floor(Math.random() * 20 + 340)
             let Oganesson = Math.floor(Math.random() * 20 + 290)
+            let Nx = Math.floor(Math.random() * 20 + 240)
 
             chart.data.datasets[0].data = [
                 AWM,
@@ -94,7 +97,8 @@ Code, Compile, Run and Debug online from anywhere in world.
                 UWSF,
                 Vial,
                 SOTL,
-                Oganesson
+                Oganesson,
+                Nx
             ]
             chart.data.labels = [
                 "AWM(" + Math.round((AWM - AWM1) * 10000 / AWM1) / 100 + "%)",
@@ -106,7 +110,8 @@ Code, Compile, Run and Debug online from anywhere in world.
                 "UWSF(" + Math.round((UWSF - UWSF1) * 10000 / UWSF1) / 100 + "%)",
                 "Vial(" + Math.round((Vial - Vial1) * 10000 / Vial1) / 100 + "%)",
                 "SOTL(" + Math.round((SOTL - SOTL1) * 10000 / SOTL1) / 100 + "%)",
-                "Oganesson(" + Math.round((Oganesson - Oganesson1) * 10000 / Oganesson1) / 100 + "%)"
+                "Oganesson(" + Math.round((Oganesson - Oganesson1) * 10000 / Oganesson1) / 100 + "%)",
+                "Nx(" + Math.round((Nx-Nx1) * 10000 / Nx1) / 100 + "%)"
             ]
 
             // 更新上一轮数值
@@ -120,6 +125,7 @@ Code, Compile, Run and Debug online from anywhere in world.
             Vial1 = Vial
             SOTL1 = SOTL
             Oganesson1 = Oganesson
+            Nx1 = Nx
 
             chart.update()
         }, 1000)
