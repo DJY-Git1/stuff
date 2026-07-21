@@ -13,7 +13,7 @@ Code, Compile, Run and Debug online from anywhere in world.
     <meta charset="utf-8" />
     <title>test</title>
     <style>
-        * {
+        body {
             font-family:"Microsoft YaHei" , sans-serif;
         }
         h1,p{
@@ -32,25 +32,19 @@ Code, Compile, Run and Debug online from anywhere in world.
     <p>0.0.1-Beta.1: 加了个深色模式，感觉怎么都不太美观，所以做成点击标题切换了。</p>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        if (localStorage.getItem("light") == "dark"){
-            document.body.style.background = "black"
-            docuemnt.body.style.color = "white"
-        }
-        else{
-            document.body.style.background = "white"
-            document.body.style.color = "black"
-        }
+        let light = 0
         function light(){
-            if (localStorage.getItem("light") == "dark"){
-                localStorage.setItem("light" , "light")
-                document.body.style.background = "white"
-                document.body.style.color = "black"
-            }
-            else{
-                localStorage.setItem("light" , "dark")
+            if (light == 0){
                 document.body.style.background = "black"
                 document.body.style.color = "white"
+                light = 1
             }
+            else{
+                document.body.style.background = "white"
+                document.body.style.color = "black"
+                light = 0
+            }
+        }
         const ctx = document.getElementById("myChart").getContext("2d")
         const data = [
             {name:"AWM",num:250},
