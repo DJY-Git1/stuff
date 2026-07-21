@@ -16,14 +16,19 @@ Code, Compile, Run and Debug online from anywhere in world.
         * {
             font-family:"Microsoft YaHei" , sans-serif;
         }
-        h1{
+        h1,p{
             text-align:center;
         }
     </style>
 </head>
 <body>
-    <h1>AWM股票0.0.1 Alpha</h1>
+    <h1>AWM股票0.0.1-Beta</h1>
     <canvas id="myChart"></canvas>
+    <hr>
+    <h1 style="text-align:center">更新日志</h1>
+    <p>0.0.0: AWM股票的测试版本，是学完Chart上手第一个做的，属于是up的小demo了</p>
+    <p>0.0.1-Alpha: 第二个版本，一大堆bug，坐标动的太频繁，做更新日志被误判浮点数类型，柱状图加载不出来，做百分比改了800行代码。</p>
+    <p>0.0.1-Beta: 十万个bug终于改完了，更新日志弹窗不了所以整柱状图下方了，这里感谢Fafat对我代码的纠正。</p>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const ctx = document.getElementById("myChart").getContext("2d")
