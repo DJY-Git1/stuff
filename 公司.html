@@ -33,23 +33,23 @@ Code, Compile, Run and Debug online from anywhere in world.
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         if (localStorage.getItem("light") == "dark"){
-            body.style.background = "black"
-            body.style.color = "white"
+            document.body.style.background = "black"
+            docuemnt.body.style.color = "white"
         }
         else{
-            body.style.background = "white"
-            body.style.color = "black"
+            document.body.style.background = "white"
+            document.body.style.color = "black"
         }
         function light(){
             if (localStorage.getItem("light") == "dark"){
                 localStorage.setItem("light" , "light")
-                body.style.background = "white"
-                body.style.color = "black"
+                document.body.style.background = "white"
+                document.body.style.color = "black"
             }
             else{
                 localStorage.setItem("light" , "dark")
-                body.style.background = "black"
-                body.style.color = "white"
+                document.body.style.background = "black"
+                document.body.style.color = "white"
             }
         const ctx = document.getElementById("myChart").getContext("2d")
         const data = [
